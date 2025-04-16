@@ -4,11 +4,10 @@ import { useFrame } from '@react-three/fiber';
 
 export default function BanzaiTree() {
   const group = useRef();
-  const modelPath = import.meta.env.PROD ? './old_tree.glb' : '/old_tree.glb';
-  const { scene } = useGLTF(modelPath);
+  const { scene } = useGLTF('/models/old_tree.glb');
   
   // Preload the model
-  useGLTF.preload(modelPath);
+  useGLTF.preload('/models/old_tree.glb');
 
   // Animation
   useFrame((state, delta) => {
