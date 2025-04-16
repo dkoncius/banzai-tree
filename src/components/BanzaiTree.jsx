@@ -2,12 +2,15 @@ import { useGLTF } from '@react-three/drei';
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 
+// Import the model URL
+const MODEL_URL = new URL('/models/old_tree.glb', import.meta.url).href;
+
 export default function BanzaiTree() {
   const group = useRef();
-  const { scene } = useGLTF('/models/old_tree.glb');
+  const { scene } = useGLTF(MODEL_URL);
   
   // Preload the model
-  useGLTF.preload('/models/old_tree.glb');
+  useGLTF.preload(MODEL_URL);
 
   // Animation
   useFrame((state, delta) => {
