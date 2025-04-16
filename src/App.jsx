@@ -4,6 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import BanzaiTree from './components/BanzaiTree';
 import TreeControls from './components/TreeControls';
 import * as THREE from 'three';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const themes = [
   { name: 'default', color: '#b499e4' },
@@ -12,6 +13,19 @@ const themes = [
   { name: 'winter', color: '#90caf9' },
   { name: 'purple', color: '#9575cd' }
 ];
+
+function FallbackComponent({ error }) {
+  return (
+    <div style={{ margin: '2rem', padding: '2rem', background: '#f8d7da', color: '#721c24', borderRadius: '0.25rem' }}>
+      <h2>Something went wrong:</h2>
+      <p>{error.message}</p>
+      <div>
+        <h3>Unable to load 3D model</h3>
+        <p>Please check the console for more details.</p>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [treeColor, setTreeColor] = useState(0);
@@ -109,49 +123,54 @@ export default function App() {
               </div>
               
               <div className="scene-container">
-                <Canvas
-                  camera={{
-                    position: [0, 0, cameraDistance],
-                    fov: 25
-                  }}
-                  shadows
-                  gl={{
-                    antialias: true,
-                    powerPreference: "high-performance"
-                  }}
-                >
-                  <color attach="background" args={['#ffffff00']} />
-                  <ambientLight intensity={0.4} />
-                  <directionalLight
-                    position={[5, 8, 7.5]}
-                    intensity={0.8}
-                    castShadow
-                    shadow-mapSize-width={2048}
-                    shadow-mapSize-height={2048}
-                    shadow-camera-far={50}
-                    shadow-camera-left={-10}
-                    shadow-camera-right={10}
-                    shadow-camera-top={10}
-                    shadow-camera-bottom={-10}
-                  />
-                  <pointLight
-                    position={[-3, 2, -3]}
-                    intensity={1}
-                    color={themes[treeColor].color}
-                  />
-                  <Suspense fallback={null}>
-                    <BanzaiTree castShadow receiveShadow />
-                  </Suspense>
-                  <OrbitControls
-                    enableZoom={true}
-                    enablePan={false}
-                    enableRotate={true}
-                    minDistance={5}
-                    maxDistance={25}
-                    minPolarAngle={0}
-                    maxPolarAngle={Math.PI / 2}
-                  />
-                </Canvas>
+                <ErrorBoundary FallbackComponent={FallbackComponent}>
+                  <Canvas
+                    camera={{
+                      position: [0, 0, cameraDistance],
+                      fov: 25
+                    }}
+                    shadows
+                    gl={{
+                      antialias: true,
+                      powerPreference: "high-performance"
+                    }}
+                  >
+                    <color attach="background" args={['#ffffff00']} />
+                    <ambientLight intensity={0.4} />
+                    <directionalLight
+                      position={[5, 8, 7.5]}
+                      intensity={0.8}
+                      castShadow
+                      shadow-mapSize-width={2048}
+                      shadow-mapSize-height={2048}
+                      shadow-camera-far={50}
+                      shadow-camera-left={-10}
+                      shadow-camera-right={10}
+                      shadow-camera-top={10}
+                      shadow-camera-bottom={-10}
+                    />
+                    <pointLight
+                      position={[-3, 2, -3]}
+                      intensity={1}
+                      color={themes[treeColor].color}
+                    />
+                    <Suspense fallback={null}>
+                      <BanzaiTree castShadow receiveShadow />
+                    </Suspense>
+                    <OrbitControls
+                      enableZoom={true}
+                      enablePan={false}
+                      enableRotate={true}
+                      minDistance={5}
+                      maxDistance={25}
+                      minPolarAngle={0}
+                      maxPolarAngle={Math.PI / 2}
+                    />
+                  </Canvas>
+                </ErrorBoundary>
+                <div style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'white', padding: '5px', borderRadius: '3px' }}>
+                  Banzai Tree - Vercel Deployment
+                </div>
               </div>
             </div>
           </div>

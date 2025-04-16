@@ -1,17 +1,29 @@
 import { useGLTF } from '@react-three/drei';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-
-// Import the model URL
-const MODEL_URL = new URL('/models/old_tree.glb', import.meta.url).href;
+import * as THREE from 'three';
 
 export default function BanzaiTree() {
   const group = useRef();
-  const { scene } = useGLTF(MODEL_URL);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [error, setError] = useState(null);
   
-  // Preload the model
-  useGLTF.preload(MODEL_URL);
-
+  // Try to load the model with error handling
+  let scene = null;
+  try {
+    const result = useGLTF('/models/old_tree.glb');
+    scene = result.scene;
+    
+    useEffect(() => {
+      setModelLoaded(true);
+    }, []);
+  } catch (err) {
+    useEffect(() => {
+      console.error("Error loading model:", err);
+      setError(err);
+    }, []);
+  }
+  
   // Animation
   useFrame((state, delta) => {
     if (group.current) {
@@ -19,9 +31,21 @@ export default function BanzaiTree() {
     }
   });
 
+  // If there's an error, show a simple cube instead
+  if (error) {
+    return (
+      <group ref={group}>
+        <mesh>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="green" />
+        </mesh>
+      </group>
+    );
+  }
+
   return (
     <group ref={group} position={[0, 0, 0]}>
-      <primitive object={scene} />
+      {scene && <primitive object={scene} />}
     </group>
   );
 } 
