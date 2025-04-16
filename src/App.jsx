@@ -14,53 +14,53 @@ const themes = [
   { name: 'purple', color: '#9575cd' }
 ];
 
+const shapes = [
+  { name: 'box', label: 'Cube' },
+  { name: 'sphere', label: 'Sphere' },
+  { name: 'cylinder', label: 'Cylinder' },
+  { name: 'torus', label: 'Donut' }
+];
+
 function FallbackComponent({ error }) {
   return (
     <div style={{ margin: '2rem', padding: '2rem', background: '#f8d7da', color: '#721c24', borderRadius: '0.25rem' }}>
       <h2>Something went wrong:</h2>
       <p>{error.message}</p>
-      <div>
-        <h3>Unable to load 3D model</h3>
-        <p>Please check the console for more details.</p>
-      </div>
     </div>
   );
 }
 
 export default function App() {
   const [treeColor, setTreeColor] = useState(0);
-  const [cameraDistance, setCameraDistance] = useState(5);
   const [currentTheme, setCurrentTheme] = useState(themes[0].name);
+  const [currentShape, setCurrentShape] = useState('box');
+  const [isSpinning, setIsSpinning] = useState(true);
   
   const handleColorChange = (colorIndex) => {
     setTreeColor(colorIndex);
     setCurrentTheme(themes[colorIndex].name);
   };
-  
-  const handleZoom = (direction) => {
-    const newDistance = cameraDistance + direction * 2;
-    if (newDistance >= 5 && newDistance <= 25) {
-      setCameraDistance(newDistance);
-    }
+
+  const handleShapeChange = (shape) => {
+    setCurrentShape(shape);
+  };
+
+  const toggleSpin = () => {
+    setIsSpinning(!isSpinning);
   };
 
   // Apply theme class on initial load and when theme changes
   useEffect(() => {
-    // Remove all theme classes first
     themes.forEach(theme => {
       document.body.classList.remove(`theme-${theme.name}`);
     });
-    
-    // Add current theme class
     document.body.classList.add(`theme-${currentTheme}`);
   }, [currentTheme]);
   
   // Apply default theme on mount
   useEffect(() => {
     document.body.classList.add(`theme-${themes[0].name}`);
-    
     return () => {
-      // Cleanup on unmount
       themes.forEach(theme => {
         document.body.classList.remove(`theme-${theme.name}`);
       });
@@ -72,53 +72,70 @@ export default function App() {
       <div className="project-info">
         <div>
           <span>Project:</span>
-          BANZAI TREE
+          BANZAI BOX
         </div>
         <div>
           <span>Services:</span>
-          INTERACTIVE DESIGN
+          3D VISUALIZATION
         </div>
         <div>
           <span>Type of project:</span>
-          NATURE VISUALIZATION
+          INTERACTIVE SHAPES
         </div>
       </div>
       
-      <h1 className="project-title">banzai·tree</h1>
+      <h1 className="project-title">banzai·box</h1>
       
       <div className="main-content">
         <div className="tablet-container">
           <div className="tablet-content">
             <div className="tablet-header">
-              <div className="tablet-logo">banzai.tree</div>
+              <div className="tablet-logo">banzai.box</div>
               <div className="tablet-nav">
-                <div className="tablet-nav-item">Services</div>
-                <div className="tablet-nav-item">Treatment</div>
-                <div className="tablet-nav-item">Blog</div>
-                <div className="tablet-nav-item">About us</div>
+                <div className="tablet-nav-item">Shapes</div>
+                <div className="tablet-nav-item">Colors</div>
+                <div className="tablet-nav-item">About</div>
+                <div className="tablet-nav-item">Contact</div>
               </div>
               <button className="tablet-contact">Contact us</button>
             </div>
             
             <div className="tablet-main">
               <div className="tablet-text">
-                <h2 className="tablet-headline">Embark on your nature journey with professionals</h2>
-                <div className="ready-badge">Ready to help</div>
+                <h2 className="tablet-headline">Experience interactive 3D shapes with style</h2>
+                <div className="ready-badge">Interactive Demo</div>
                 
                 <p className="tablet-description">
-                  Welcome to banzai.tree, your gateway to improved connection with nature. We're here to help you cultivate a stronger, more resilient relationship with the natural world.
+                  Welcome to banzai.box, your playground for 3D shape exploration. Choose different shapes, colors, and watch them come to life with smooth animations.
                 </p>
                 
                 <TreeControls 
                   activeColor={treeColor}
                   onColorChange={handleColorChange}
-                  onZoomIn={() => handleZoom(-1)}
-                  onZoomOut={() => handleZoom(1)}
                 />
                 
+                <div className="tree-controls-container">
+                  <div className="option-title">Choose shape</div>
+                  <div className="shape-options">
+                    {shapes.map((shape) => (
+                      <button 
+                        key={shape.name}
+                        className={`shape-option ${currentShape === shape.name ? 'active' : ''}`}
+                        onClick={() => handleShapeChange(shape.name)}
+                      >
+                        {shape.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
                 <div className="action-buttons">
-                  <button className="start-button">Start Growth</button>
-                  <button className="watch-button">Watch review</button>
+                  <button 
+                    className="start-button"
+                    onClick={toggleSpin}
+                  >
+                    {isSpinning ? 'Stop Spin' : 'Start Spin'}
+                  </button>
                 </div>
               </div>
               
@@ -126,7 +143,7 @@ export default function App() {
                 <ErrorBoundary FallbackComponent={FallbackComponent}>
                   <Canvas
                     camera={{
-                      position: [0, 0, cameraDistance],
+                      position: [0, 0, 5],
                       fov: 25
                     }}
                     shadows
@@ -155,22 +172,25 @@ export default function App() {
                       color={themes[treeColor].color}
                     />
                     <Suspense fallback={null}>
-                      <BanzaiTree castShadow receiveShadow />
+                      <BanzaiTree 
+                        castShadow 
+                        receiveShadow 
+                        color={themes[treeColor].color} 
+                        shape={currentShape}
+                        isSpinning={isSpinning}
+                      />
                     </Suspense>
                     <OrbitControls
                       enableZoom={true}
                       enablePan={false}
                       enableRotate={true}
-                      minDistance={5}
-                      maxDistance={25}
+                      minDistance={3}
+                      maxDistance={10}
                       minPolarAngle={0}
                       maxPolarAngle={Math.PI / 2}
                     />
                   </Canvas>
                 </ErrorBoundary>
-                <div style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'white', padding: '5px', borderRadius: '3px' }}>
-                  Banzai Tree - Vercel Deployment
-                </div>
               </div>
             </div>
           </div>
@@ -178,10 +198,8 @@ export default function App() {
       </div>
       
       <div className="credits">
-        Design inspired by <a href="https://dribbble.com/shots/22786757-Cogni-wave-Web-Design-for-Mental-Health-Websites" target="_blank" rel="noopener noreferrer">Cogni:wave</a> by <a href="https://dribbble.com/phenomenon" target="_blank" rel="noopener noreferrer">Phenomenon Studio</a>
-        <br />
-        Ghibli shader from <a href="https://github.com/craftzdog/ghibli-style-shader" target="_blank" rel="noopener noreferrer">craftzdog/ghibli-style-shader</a>
+        Design by <a href="https://www.linkedin.com/in/deividas-koncius/" target="_blank" rel="noopener noreferrer">Deividas Koncius</a>
       </div>
     </div>
   );
-} 
+}
